@@ -1,4 +1,4 @@
-import BookmarkIcon from "./BookmarkIcon";
+import BookmarkIcon from "../bookmark/BookmarkIcon";
 
 export default function JobItemContent() {
 

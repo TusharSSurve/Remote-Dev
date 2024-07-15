@@ -1,29 +1,43 @@
-import { useEffect, useState } from "react";
-import Background from "./Background";
-import Container from "./Container";
-import Footer from "./Footer";
-import Header from "./Header";
+import { useState } from "react";
+import Background from "./layout/Background";
+import Container from "./layout/Container";
+import Footer from "./layout/Footer";
+import Header from "./layout/Header";
+import Logo from "./layout/Logo";
+import BookmarksButton from "./bookmark/BookmarksButton";
+import SearchForm from "./layout/SearchForm";
+import Sidebar from "./layout/Sidebar";
+import JobItemContent from "./job/JobItemContent";
+import ResultsCount from "./ResultsCount";
+import SortingControls from "./controls/SortingControls";
+import JobList from "./job/JobList";
+import PaginationControls from "./controls/PaginationControls";
+import { useJobItems } from "../lib/hooks";
 
 function App() {
-  const [jobItems, setJobItems] = useState([]);
   const [searchText, setSearchText] = useState("");
-
-  useEffect(() => {
-    if (!searchText) return;
-    fetch(`https://bytegrad.com/course-assets/projects/rmtdev/api/data?search=${searchText}`).then(res => {
-      if (!res.ok) {
-        return
-      }
-      return res.json()
-    }).then(data => {
-      setJobItems(data.jobItems);
-    })
-  }, [searchText]);
+  const [jobItems, isLoading] = useJobItems(searchText);
 
   return <>
     <Background />
-    <Header searchText={searchText} setSearchText={setSearchText} />
-    <Container jobItems={jobItems} />
+    <Header>
+      <div className="header__top">
+        <Logo />
+        <BookmarksButton />
+      </div>
+      <SearchForm setSearchText={setSearchText} searchText={searchText} />
+    </Header>
+    <Container>
+      <Sidebar>
+        <div className="sidebar__top">
+          <ResultsCount />
+          <SortingControls />
+        </div>
+        <JobList jobItems={jobItems} isLoading={isLoading} />
+        <PaginationControls />
+      </Sidebar>
+      <JobItemContent />
+    </Container>
     <Footer />
   </>;
 }

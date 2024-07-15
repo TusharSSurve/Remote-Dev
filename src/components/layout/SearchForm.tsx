@@ -1,8 +1,9 @@
-// type TSearchForm = {
-//   searchText: string,
-//   setSearchText: 
-// }
-export default function SearchForm({ searchText, setSearchText }) {
+type TSearchForm = {
+  searchText: string,
+  setSearchText: React.Dispatch<React.SetStateAction<string>>
+}
+
+export default function SearchForm({ searchText, setSearchText }: TSearchForm) {
   return (
     <form action="#" className="search" onSubmit={(e) => e.preventDefault()}>
       <button type="submit">
