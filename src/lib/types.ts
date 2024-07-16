@@ -10,3 +10,14 @@ export type JobItem = {
   company: string,
   daysAgo: number,
 }
+
+export type EJobItem = JobItem & {
+  description: string;
+  qualifications: string[];
+  reviews: string[];
+  duration: string;
+  location: string;
+  salary: string;
+  coverImgURL: string;
+  companyURL: string;
+}

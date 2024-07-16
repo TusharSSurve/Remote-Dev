@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { JobItem } from "./types";
+import { EJobItem, JobItem } from "./types";
+import { BASE_URL } from "./constants";
 
 export function useJobItems(searchText: string) {
   const [jobItems, setJobItems] = useState<JobItem[]>([]);
@@ -10,7 +11,7 @@ export function useJobItems(searchText: string) {
   useEffect(() => {
     if (!searchText) return;
     setIsLoading(true);
-    fetch(`https://bytegrad.com/course-assets/projects/rmtdev/api/data?search=${searchText}`).then(res => {
+    fetch(`${BASE_URL}?search=${searchText}`).then(res => {
       if (!res.ok) {
         return
       }
@@ -22,4 +23,38 @@ export function useJobItems(searchText: string) {
   }, [searchText]);
 
   return [jobItemsSliced, isLoading] as const;
+}
+
+export function useActiveId() {
+  const [activeId, setActiveId] = useState<number | null>(null)
+  useEffect(() => {
+    const handleHashChange = () => {
+      setActiveId(+window.location.hash.slice(1))
+    }
+    handleHashChange()
+    window.addEventListener('hashchange', handleHashChange)
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange)
+    }
+  }, [])
+  return activeId;
+}
+
+export function useJobItem(id: number | null) {
+  const [jobItem, setJobItem] = useState<EJobItem | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    fetch(`${BASE_URL}/${id}`).
+      then(resp => {
+        if (!resp.ok) {
+          return
+        }
+        return resp.json();
+      }).then(data => {
+        setJobItem(data.jobItem);
+      })
+  }, [id])
+  return jobItem;
 }
