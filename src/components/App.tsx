@@ -17,9 +17,10 @@ import { useDebounce, useJobItems } from "../lib/hooks";
 function App() {
   const [searchText, setSearchText] = useState("");
   const debouncedSearchText = useDebounce(searchText);
-  const [jobItems, isLoading, total] = useJobItems(debouncedSearchText);
+  const [jobItems, isLoading] = useJobItems(debouncedSearchText);
 
-
+  const total = jobItems.length;
+  const jobItemsSliced = jobItems.slice(0, 7);
   return <>
     <Background />
     <Header>
@@ -35,7 +36,7 @@ function App() {
           <ResultsCount total={total} />
           <SortingControls />
         </div>
-        <JobList jobItems={jobItems} isLoading={isLoading} />
+        <JobList jobItems={jobItemsSliced} isLoading={isLoading} />
         <PaginationControls />
       </Sidebar>
       <JobItemContent />

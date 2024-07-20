@@ -5,6 +5,10 @@ import { useQuery } from "@tanstack/react-query";
 
 const fetchJobItem = async (id: number | null): Promise<EJobItem> => {
   const response = await fetch(`${BASE_URL}/${id}`);
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.description);
+  }
   const data = await response.json();
   return data.jobItem;
 }
@@ -18,7 +22,9 @@ export function useJobItem(id: number | null) {
       refetchOnWindowFocus: false,
       retry: false,
       enabled: !!id,
-      onError: () => { }
+      onError: (error) => {
+        console.log(error);
+      }
     }
   );
 
@@ -28,8 +34,6 @@ export function useJobItem(id: number | null) {
 export function useJobItems(searchText: string) {
   const [jobItems, setJobItems] = useState<JobItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const total = jobItems.length;
-  const jobItemsSliced = jobItems.slice(0, 7);
 
   useEffect(() => {
     if (!searchText) return;
@@ -45,7 +49,7 @@ export function useJobItems(searchText: string) {
     })
   }, [searchText]);
 
-  return [jobItemsSliced, isLoading, total] as const;
+  return [jobItems, isLoading] as const;
 }
 
 export function useActiveId() {
