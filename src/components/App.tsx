@@ -14,6 +14,8 @@ import JobList from "./job/JobList";
 import PaginationControls from "./controls/PaginationControls";
 import { useDebounce, useJobItems } from "../lib/hooks";
 import { Toaster } from "react-hot-toast";
+import { RESULTS_PER_PAGE } from "../lib/constants";
+import { SortBy } from "../lib/types";
 
 function App() {
   // state
@@ -21,11 +23,19 @@ function App() {
   const debouncedSearchText = useDebounce(searchText);
   const [jobItems, isLoading] = useJobItems(debouncedSearchText);
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState<SortBy>('relevant');
 
   // computed state
   const total = jobItems?.length || 0;
-  const totalPages = total / 7;
-  const jobItemsSliced = jobItems?.slice(currentPage * 7 - 7, currentPage * 7) || [];
+  const totalPages = total / RESULTS_PER_PAGE;
+  const jobItemsSorted = [...(jobItems || [])].sort((a, b) => {
+    if (sortBy === 'relevant') {
+      return b.relevanceScore - a.relevanceScore
+    } else {
+      return a.daysAgo - b.daysAgo
+    }
+  })
+  const jobItemsSliced = jobItemsSorted.slice(currentPage * RESULTS_PER_PAGE - RESULTS_PER_PAGE, currentPage * RESULTS_PER_PAGE);
 
   // event handlers
   const handleChangePage = (direction: 'next' | 'prev') => {
@@ -35,6 +45,11 @@ function App() {
     else if (direction === 'prev') {
       setCurrentPage(prev => prev - 1)
     }
+  }
+
+  const handleSortBy = (newSortBy: SortBy) => {
+    setCurrentPage(1);
+    setSortBy(newSortBy);
   }
 
   return <>
@@ -50,7 +65,7 @@ function App() {
       <Sidebar>
         <div className="sidebar__top">
           <ResultsCount total={total} />
-          <SortingControls />
+          <SortingControls onClick={handleSortBy} sortBy={sortBy} />
         </div>
         <JobList jobItems={jobItemsSliced} isLoading={isLoading} />
         <PaginationControls onClick={handleChangePage} currentPage={currentPage} totalPages={totalPages} />
