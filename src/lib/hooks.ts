@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { EJobItem, JobItem } from "./types";
 import { BASE_URL } from "./constants";
 import { useQuery } from "@tanstack/react-query";
 import { handleError } from "./utils";
+import { BookmarkContext } from "../contexts/BookmarkContextProvider";
 
 const fetchJobItem = async (id: number | null): Promise<EJobItem> => {
   const response = await fetch(`${BASE_URL}/${id}`);
@@ -81,4 +82,22 @@ export function useDebounce<T>(value: T, delay = 250): T {
     return () => clearTimeout(timerID)
   }, [value, delay])
   return debouncedSearchText;
+}
+
+export function useLocalStorage<T>(key: string, initialValue: T): [T, React.Dispatch<React.SetStateAction<T>>] {
+  const [value, setValue] = useState(() => JSON.parse(localStorage.getItem(key) || JSON.stringify(initialValue)));
+
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(value))
+  }, [value, key]);
+
+  return [value, setValue] as const;
+}
+
+export function useBookmarkContext() {
+  const context = useContext(BookmarkContext);
+  if (!context) {
+    throw new Error('useBookmarkContext must be used within a BookmarksContextProvider');
+  }
+  return context;
 }
